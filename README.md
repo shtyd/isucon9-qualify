@@ -77,3 +77,8 @@ $ ./bin/shipment
 $ ./bin/benchmarker
 
 ```
+
+2020/8/19  
+webappのリバースプロキシとしてnginx導入。  
+webappのportを8000 -> 8080に変更し、
+nginxのportを8000で待ち受けリクエストを8080にproxyする。 (外から見える動作は変わらない。（はず)）
