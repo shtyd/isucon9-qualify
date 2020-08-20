@@ -7,6 +7,12 @@ http://isucon.net/archives/53555007.html
 ### 当日マニュアル
 https://github.com/isucon/isucon9-qualify/blob/master/docs/manual.md
 
+### ISUCARIアプリケーション仕様書
+https://github.com/isucon/isucon9-qualify/blob/master/webapp/docs/APPLICATION_SPEC.md
+
+### 外部アプリケーション仕様書
+https://github.com/isucon/isucon9-qualify/blob/master/webapp/docs/EXTERNAL_SERVICE_SPEC.md
+
 ### 講評抜粋
 http://isucon.net/archives/53789931.html
 
@@ -82,3 +88,77 @@ $ ./bin/benchmarker
 webappのリバースプロキシとしてnginx導入。  
 webappのportを8000 -> 8080に変更し、
 nginxのportを8000で待ち受けリクエストを8080にproxyする。 (外から見える動作は変わらない。（はず)）
+
+
+2020/8/20  
+nginxのアクセスログをkataribeを使って解析してみる。  
+合計レスポンスタイムトップ10がこう。  
+/initializeは除くとして、圧倒的一位がGET /users/transactions.json 。
+その後POST /buy, POST /loginが続く。
+```
+Top 20 Sort By Total
+Count    Total     Mean   Stddev     Min   P50.0   P90.0   P95.0   P99.0     Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+   68  176.258   2.5920   1.8917   0.099   2.725   5.002   5.832   7.595   7.595   64    0    4    0     1261375          0      18549      23564  GET /users/transactions.json HTTP/1.1
+    1   18.277  18.2770   0.0000  18.277  18.277  18.277  18.277  18.277  18.277    1    0    0    0          31         31         31         31  POST /initialize HTTP/1.1
+   21   16.711   0.7958   0.8355   0.001   0.121   1.864   1.879   1.990   1.990   11    0   10    0         688          0         32         49  POST /buy HTTP/1.1
+   56   15.954   0.2849   0.1637   0.111   0.215   0.555   0.620   0.659   0.659   48    0    8    0        5314         73         94        103  POST /login HTTP/1.1
+    9   15.925   1.7694   0.5631   1.046   1.885   2.567   2.567   2.567   2.567    9    0    0    0      207483      23033      23053      23075  GET /new_items/60.json HTTP/1.1
+    5   14.859   2.9718   0.9243   1.575   2.883   4.472   4.472   4.472   4.472    5    0    0    0      117480      23479      23496      23533  GET /new_items.json HTTP/1.1
+    9   12.551   1.3946   0.5654   0.666   1.127   2.497   2.497   2.497   2.497    9    0    0    0      213051      23655      23672      23717  GET /new_items/30.json HTTP/1.1
+    1    9.905   9.9050   0.0000   9.905   9.905   9.905   9.905   9.905   9.905    0    0    1    0           0          0          0          0  GET /new_items.json?created_at=1565592389&item_id=49579 HTTP/1.1
+   27    9.838   0.3644   0.3239   0.003   0.214   0.853   0.937   1.123   1.123   21    0    6    0         755         13         27        106  POST /sell HTTP/1.1
+    1    9.290   9.2900   0.0000   9.290   9.290   9.290   9.290   9.290   9.290    1    0    0    0       23685      23685      23685      23685  GET /new_items.json?created_at=1565592774&item_id=49965 HTTP/1.1
+```
+
+またslow requestのトップ20はこう。  
+GET /new_items.json?created_at= 系が殆どを占めていて、GET /users/transactions.jsonもちらほらある。
+```
+TOP 37 Slow Requests
+ 1  18.277  POST /initialize HTTP/1.1
+ 2   9.905  GET /new_items.json?created_at=1565592389&item_id=49579 HTTP/1.1
+ 3   9.290  GET /new_items.json?created_at=1565592774&item_id=49965 HTTP/1.1
+ 4   8.723  GET /new_items.json?created_at=1565592776&item_id=49969 HTTP/1.1
+ 5   8.628  GET /new_items.json?created_at=1565592578&item_id=49772 HTTP/1.1
+ 6   7.644  GET /new_items.json?created_at=1565592483&item_id=49679 HTTP/1.1
+ 7   7.626  GET /new_items.json?created_at=1565592486&item_id=49680 HTTP/1.1
+ 8   7.595  GET /users/transactions.json HTTP/1.1
+ 9   7.023  GET /new_items.json?created_at=1565592581&item_id=49780 HTTP/1.1
+10   6.892  GET /new_items.json?created_at=1565592390&item_id=49587 HTTP/1.1
+11   6.770  GET /new_items.json?created_at=1565592530&item_id=49726 HTTP/1.1
+12   6.570  GET /new_items.json?created_at=1565592535&item_id=49731 HTTP/1.1
+13   6.452  GET /new_items.json?created_at=1565592434&item_id=49633 HTTP/1.1
+14   6.270  GET /users/transactions.json HTTP/1.1
+15   6.152  GET /new_items.json?created_at=1565592438&item_id=49637 HTTP/1.1
+16   6.055  GET /users/transactions.json HTTP/1.1
+17   5.832  GET /users/transactions.json HTTP/1.1
+18   5.746  GET /users/transactions.json HTTP/1.1
+19   5.644  GET /new_items.json?created_at=1565592344&item_id=49536 HTTP/1.1
+20   5.635  GET /users/transactions.json HTTP/1.1
+```
+
+まずはtotalのレスポンスタイムで考えて、下記の4種類のリクエストがボトルネックになっていると分かる。  
+ここのレスポンスタイムを短縮できればベンチのタイム短縮に貢献するはず。  
+1. GET /users/transactions.json HTTP/1.1
+2. POST /buy
+3. POST /login
+4. GET /new_items.json?created_at=
+
+ただ、ベンチのスコアは、レスポンスタイムではなくて、取引が完了した商品（椅子）の価格の合計。  
+これってどうやったら増えるのか・・？
+```
+取引が完了した商品（椅子）の価格の合計（ｲｽｺｲﾝ） - 減点 = スコア（ｲｽｺｲﾝ）
+```
+講評によると、
+```
+スコアを最大化するためには、よりたくさんの取引が完了することが必要ですが、ベンチマーカーは出品した上で各APIの回遊をし、購入処理となるため、各APIの高速化が必須となります。なお、初期の段階では商品は100ｲｽｺｲﾝでしか出品されません。
+```
+とのこと。ベンチは一定数の決まったリクエストが飛んでくるのではなくて、一定時間中に多くのリクエストが飛んでくるものらしい。
+なのでリクエストを多くさばければスコアが高い。
+```
+今回のISUCONでは、例年と違い、スコアはリクエスト数から計算されるものではなく、
+```
+おそらくそういうこと。  
+ただ今回はリクエスト数ではなくて総取引金額がスコアなので、取引数自体を多くすることと、各取引の金額を上げることでスコアを上げることが可能。  
+どうすればできるか？  
+取引数を増やす　-> 各APIのレスポンスタイムを短縮  
+各取引の金額を上げる　-> ・・どうすれば？？？
