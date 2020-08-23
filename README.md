@@ -162,3 +162,23 @@ TOP 37 Slow Requests
 どうすればできるか？  
 取引数を増やす　-> 各APIのレスポンスタイムを短縮  
 各取引の金額を上げる　-> ・・どうすれば？？？
+
+2020/8/22  
+pprofを使ってGo WebアプリのCPUプロファイルを取ってみる。  
+使い方は公式のドキュメントに通りで、思ってたかなり簡単だった。  
+・・、がこの情報をどう使えばよいものか？  
+とりあえずmain.GetNewCategoryItemsとmain.PostLoginにかなりCPU時間使っていることはフレームグラフから読み取れる。  
+
+2020/8/23  
+スロークエリログの解析。  
+slow-query.logを取得してからpt-query-digestを使って見やすくしてみる。  
+見てみると↓のクエリが回数も多くて時間もかかっていることが分かる。
+```
+SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at` < '2019-08-12 15:36:52'  OR (`created_at` <= '2019-08-12 15:36:52' AND `id` < 49002)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
+```
+
+```
+SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G^C
+```
+
+大体ボトルネックになっていく箇所については測定で特定できたため、これからそこを改善していく。
