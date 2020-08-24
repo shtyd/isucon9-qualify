@@ -182,3 +182,6 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') ORDER BY `created
 ```
 
 大体ボトルネックになっていく箇所については測定で特定できたため、これからそこを改善していく。
+
+2020/8/24  
+実行環境をUbuntu18.04 4GBメモリ、2CoreのVMに変えただけでスコアが1810まで上がった。本番もこれでやった方がよさそう。
