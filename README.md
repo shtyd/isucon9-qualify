@@ -222,6 +222,11 @@ TOP 37 Slow Requests
  9  5.507  GET /users/transactions.json HTTP/1.1
 10  5.490  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
 ```
-やはりこのあたりが最も遅い。  
-GET /users/transactions.json HTTP/1.1
+やはりこのあたりが最も遅いので、まずはここから手を着けていく。
+GET /users/transactions.json HTTP/1.1  
 GET /users/transactions.json?created_at=
+
+次にSlow-queryログをlong_query_time = 2で取得してみたが、ログが出ない。  
+long_query_time = 1にしても出なくなった。  
+先頭のログ開始の表記などは都度書き込まれているので、書き込み失敗している訳ではないはず。  
+インフラ変えただけでスロークエリも無くなった・・？　　
