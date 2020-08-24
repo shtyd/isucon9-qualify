@@ -184,4 +184,44 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') ORDER BY `created
 大体ボトルネックになっていく箇所については測定で特定できたため、これからそこを改善していく。
 
 2020/8/24  
-実行環境をUbuntu18.04 4GBメモリ、2CoreのVMに変えただけでスコアが1810まで上がった。本番もこれでやった方がよさそう。
+本番環境に合わせてLinux上で環境を作っていく。  
+実行環境をUbuntu18.04 4GBメモリ、2CoreのVMに変更。  
+するとそれだけでスコアが1810まで上がった。(最初からこれでやればよかった）
+
+次にNginxを入れてリバーシプロキシしただけでさらにスコアが上がった・・。
+```
+{"pass":true,"score":2510,"campaign":0,"language":"Go","messages":[]}
+```
+
+アクセスログのプロファイルと取り直す。
+```
+Top 20 Sort By Total
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+   61   59.287  0.9719  0.8076  0.000  1.606  1.640  1.845  2.148  2.148   32    0   29    0        2154          0         35         49  POST /buy HTTP/1.1
+   46   25.260  0.5491  0.4043  0.000  0.805  0.887  0.994  1.109  1.109   28    0   18    0        1846         29         40         83  POST /ship_done HTTP/1.1
+   42   22.705  0.5406  0.4086  0.000  0.808  0.851  0.886  1.307  1.307   30    0   12    0        2226         29         53         61  POST /ship HTTP/1.1
+   25   18.661  0.7464  0.2939  0.005  0.807  0.966  0.975  1.331  1.331   25    0    0    0         850         34         34         34  POST /complete HTTP/1.1
+    2   11.985  5.9925  0.5025  5.490  6.495  6.495  6.495  6.495  6.495    1    0    1    0       21946          0      10973      21946  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+    2   11.128  5.5640  0.6230  4.941  6.187  6.187  6.187  6.187  6.187    2    0    0    0       43373      21675      21686      21698  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+   62    9.076  0.1464  0.0748  0.051  0.136  0.261  0.287  0.314  0.314   54    0    8    0        5843         73         94        107  POST /login HTTP/1.1
+    2    8.980  4.4900  0.4110  4.079  4.901  4.901  4.901  4.901  4.901    2    0    0    0       43171      21574      21585      21597  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+    1    8.444  8.4440  0.0000  8.444  8.444  8.444  8.444  8.444  8.444    1    0    0    0          31         31         31         31  POST /initialize HTTP/1.1
+```
+
+```
+TOP 37 Slow Requests
+ 1  8.444  POST /initialize HTTP/1.1
+ 2  7.269  GET /users/transactions.json HTTP/1.1
+ 3  6.495  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+ 4  6.187  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+ 5  6.125  GET /users/transactions.json HTTP/1.1
+ 6  6.096  GET /users/transactions.json HTTP/1.1
+ 7  5.714  GET /users/transactions.json HTTP/1.1
+ 8  5.661  GET /users/transactions.json HTTP/1.1
+ 9  5.507  GET /users/transactions.json HTTP/1.1
+10  5.490  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+```
+やはりこのあたりが最も遅い。  
+GET /users/transactions.json HTTP/1.1
+GET /users/transactions.json?created_at=

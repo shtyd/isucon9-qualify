@@ -1,0 +1,153 @@
+Top 20 Sort By Count
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+   62    9.076  0.1464  0.0748  0.051  0.136  0.261  0.287  0.314  0.314   54    0    8    0        5843         73         94        107  POST /login HTTP/1.1
+   61   59.287  0.9719  0.8076  0.000  1.606  1.640  1.845  2.148  2.148   32    0   29    0        2154          0         35         49  POST /buy HTTP/1.1
+   60    2.639  0.0440  0.0704  0.000  0.008  0.154  0.271  0.296  0.296   39    0   21    0        2194         13         36        106  POST /sell HTTP/1.1
+   54    2.256  0.0418  0.0540  0.000  0.022  0.126  0.151  0.263  0.263   54    0    0    0      158943       2937       2943       2953  GET /settings HTTP/1.1
+   46   25.260  0.5491  0.4043  0.000  0.805  0.887  0.994  1.109  1.109   28    0   18    0        1846         29         40         83  POST /ship_done HTTP/1.1
+   42   22.705  0.5406  0.4086  0.000  0.808  0.851  0.886  1.307  1.307   30    0   12    0        2226         29         53         61  POST /ship HTTP/1.1
+   25   18.661  0.7464  0.2939  0.005  0.807  0.966  0.975  1.331  1.331   25    0    0    0         850         34         34         34  POST /complete HTTP/1.1
+   22    2.053  0.0933  0.0838  0.039  0.063  0.229  0.320  0.332  0.332   22    0    0    0      515936      23340      23451      23566  GET /new_items/10.json HTTP/1.1
+   20    3.248  0.1624  0.1533  0.059  0.115  0.581  0.629  0.629  0.629   20    0    0    0      455119      22716      22755      22810  GET /new_items/60.json HTTP/1.1
+   18    1.942  0.1079  0.0839  0.044  0.074  0.202  0.387  0.387  0.387   18    0    0    0      429921      23797      23884      23936  GET /new_items/40.json HTTP/1.1
+   17    3.586  0.2109  0.1835  0.068  0.123  0.559  0.621  0.621  0.621   17    0    0    0      398228      23231      23425      23609  GET /new_items.json HTTP/1.1
+   16    2.635  0.1647  0.1326  0.046  0.093  0.352  0.423  0.423  0.423   16    0    0    0      375889      23473      23493      23523  GET /new_items/20.json HTTP/1.1
+   15    1.447  0.0965  0.1194  0.033  0.055  0.121  0.534  0.534  0.534   15    0    0    0      357252      23795      23816      23879  GET /new_items/30.json HTTP/1.1
+   15    1.311  0.0874  0.0846  0.034  0.049  0.252  0.312  0.312  0.312   15    0    0    0      352558      23479      23503      23555  GET /new_items/1.json HTTP/1.1
+   13    0.225  0.0173  0.0305  0.003  0.005  0.060  0.110  0.110  0.110   13    0    0    0        1183         90         91         92  POST /bump HTTP/1.1
+   12    0.056  0.0047  0.0080  0.002  0.002  0.003  0.031  0.031  0.031   12    0    0    0       48547       3888       4045       4086  GET /items/50001.json HTTP/1.1
+   11    1.003  0.0912  0.0642  0.041  0.069  0.133  0.272  0.272  0.272   11    0    0    0      259057      23536      23550      23575  GET /new_items/50.json HTTP/1.1
+    9    0.022  0.0024  0.0005  0.002  0.002  0.003  0.003  0.003  0.003    9    0    0    0       34776       3692       3864       3892  GET /items/50007.json HTTP/1.1
+    9    0.028  0.0031  0.0030  0.001  0.001  0.010  0.010  0.010  0.010    3    0    6    0         625         58         69         93  POST /items/edit HTTP/1.1
+
+Top 20 Sort By Total
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+   61   59.287  0.9719  0.8076  0.000  1.606  1.640  1.845  2.148  2.148   32    0   29    0        2154          0         35         49  POST /buy HTTP/1.1
+   46   25.260  0.5491  0.4043  0.000  0.805  0.887  0.994  1.109  1.109   28    0   18    0        1846         29         40         83  POST /ship_done HTTP/1.1
+   42   22.705  0.5406  0.4086  0.000  0.808  0.851  0.886  1.307  1.307   30    0   12    0        2226         29         53         61  POST /ship HTTP/1.1
+   25   18.661  0.7464  0.2939  0.005  0.807  0.966  0.975  1.331  1.331   25    0    0    0         850         34         34         34  POST /complete HTTP/1.1
+    2   11.985  5.9925  0.5025  5.490  6.495  6.495  6.495  6.495  6.495    1    0    1    0       21946          0      10973      21946  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+    2   11.128  5.5640  0.6230  4.941  6.187  6.187  6.187  6.187  6.187    2    0    0    0       43373      21675      21686      21698  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+   62    9.076  0.1464  0.0748  0.051  0.136  0.261  0.287  0.314  0.314   54    0    8    0        5843         73         94        107  POST /login HTTP/1.1
+    2    8.980  4.4900  0.4110  4.079  4.901  4.901  4.901  4.901  4.901    2    0    0    0       43171      21574      21585      21597  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+    1    8.444  8.4440  0.0000  8.444  8.444  8.444  8.444  8.444  8.444    1    0    0    0          31         31         31         31  POST /initialize HTTP/1.1
+    2    8.442  4.2210  0.1660  4.055  4.387  4.387  4.387  4.387  4.387    2    0    0    0       45015      22496      22507      22519  GET /users/transactions.json?created_at=1565580339&item_id=37531 HTTP/1.1
+    2    8.307  4.1535  0.1005  4.053  4.254  4.254  4.254  4.254  4.254    2    0    0    0       43843      21919      21921      21924  GET /users/transactions.json?created_at=1565585419&item_id=42616 HTTP/1.1
+    2    7.153  3.5765  0.2665  3.310  3.843  3.843  3.843  3.843  3.843    2    0    0    0       42384      21181      21192      21203  GET /users/transactions.json?created_at=1565572185&item_id=29376 HTTP/1.1
+    2    6.746  3.3730  0.0880  3.285  3.461  3.461  3.461  3.461  3.461    2    0    0    0       43059      21527      21529      21532  GET /users/transactions.json?created_at=1565589254&item_id=46451 HTTP/1.1
+    2    6.636  3.3180  0.0460  3.272  3.364  3.364  3.364  3.364  3.364    2    0    0    0       44574      22287      22287      22287  GET /users/transactions.json?created_at=1565584362&item_id=41559 HTTP/1.1
+    2    6.563  3.2815  0.0165  3.265  3.298  3.298  3.298  3.298  3.298    2    0    0    0       43099      21536      21549      21563  GET /users/transactions.json?created_at=1565584756&item_id=41954 HTTP/1.1
+    2    5.477  2.7385  0.2425  2.496  2.981  2.981  2.981  2.981  2.981    2    0    0    0       42762      21380      21381      21382  GET /users/transactions.json?created_at=1565554825&item_id=12017 HTTP/1.1
+    2    5.430  2.7150  0.2280  2.487  2.943  2.943  2.943  2.943  2.943    2    0    0    0       43291      21643      21645      21648  GET /users/transactions.json?created_at=1565568134&item_id=25333 HTTP/1.1
+    2    5.228  2.6140  0.0860  2.528  2.700  2.700  2.700  2.700  2.700    2    0    0    0       42233      21114      21116      21119  GET /users/transactions.json?created_at=1565580324&item_id=37521 HTTP/1.1
+    2    5.128  2.5640  0.0450  2.519  2.609  2.609  2.609  2.609  2.609    2    0    0    0       42985      21490      21492      21495  GET /users/transactions.json?created_at=1565589324&item_id=46517 HTTP/1.1
+
+Top 20 Sort By Mean
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+    1    8.444  8.4440  0.0000  8.444  8.444  8.444  8.444  8.444  8.444    1    0    0    0          31         31         31         31  POST /initialize HTTP/1.1
+    2   11.985  5.9925  0.5025  5.490  6.495  6.495  6.495  6.495  6.495    1    0    1    0       21946          0      10973      21946  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+    2   11.128  5.5640  0.6230  4.941  6.187  6.187  6.187  6.187  6.187    2    0    0    0       43373      21675      21686      21698  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+    2    8.980  4.4900  0.4110  4.079  4.901  4.901  4.901  4.901  4.901    2    0    0    0       43171      21574      21585      21597  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+    2    8.442  4.2210  0.1660  4.055  4.387  4.387  4.387  4.387  4.387    2    0    0    0       45015      22496      22507      22519  GET /users/transactions.json?created_at=1565580339&item_id=37531 HTTP/1.1
+    2    8.307  4.1535  0.1005  4.053  4.254  4.254  4.254  4.254  4.254    2    0    0    0       43843      21919      21921      21924  GET /users/transactions.json?created_at=1565585419&item_id=42616 HTTP/1.1
+    1    4.123  4.1230  0.0000  4.123  4.123  4.123  4.123  4.123  4.123    1    0    0    0       22019      22019      22019      22019  GET /users/transactions.json?created_at=1565567320&item_id=24512 HTTP/1.1
+    1    4.073  4.0730  0.0000  4.073  4.073  4.073  4.073  4.073  4.073    1    0    0    0       22003      22003      22003      22003  GET /users/transactions.json?created_at=1565571332&item_id=28528 HTTP/1.1
+    2    7.153  3.5765  0.2665  3.310  3.843  3.843  3.843  3.843  3.843    2    0    0    0       42384      21181      21192      21203  GET /users/transactions.json?created_at=1565572185&item_id=29376 HTTP/1.1
+    1    3.392  3.3920  0.0000  3.392  3.392  3.392  3.392  3.392  3.392    1    0    0    0       21372      21372      21372      21372  GET /users/transactions.json?created_at=1565554209&item_id=11407 HTTP/1.1
+    2    6.746  3.3730  0.0880  3.285  3.461  3.461  3.461  3.461  3.461    2    0    0    0       43059      21527      21529      21532  GET /users/transactions.json?created_at=1565589254&item_id=46451 HTTP/1.1
+    1    3.358  3.3580  0.0000  3.358  3.358  3.358  3.358  3.358  3.358    1    0    0    0       21750      21750      21750      21750  GET /users/transactions.json?created_at=1565554219&item_id=11416 HTTP/1.1
+    1    3.329  3.3290  0.0000  3.329  3.329  3.329  3.329  3.329  3.329    1    0    0    0       21536      21536      21536      21536  GET /users/transactions.json?created_at=1565567304&item_id=24502 HTTP/1.1
+    2    6.636  3.3180  0.0460  3.272  3.364  3.364  3.364  3.364  3.364    2    0    0    0       44574      22287      22287      22287  GET /users/transactions.json?created_at=1565584362&item_id=41559 HTTP/1.1
+    1    3.303  3.3030  0.0000  3.303  3.303  3.303  3.303  3.303  3.303    1    0    0    0       21907      21907      21907      21907  GET /users/transactions.json?created_at=1565562799&item_id=19990 HTTP/1.1
+    2    6.563  3.2815  0.0165  3.265  3.298  3.298  3.298  3.298  3.298    2    0    0    0       43099      21536      21549      21563  GET /users/transactions.json?created_at=1565584756&item_id=41954 HTTP/1.1
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+    2    5.477  2.7385  0.2425  2.496  2.981  2.981  2.981  2.981  2.981    2    0    0    0       42762      21380      21381      21382  GET /users/transactions.json?created_at=1565554825&item_id=12017 HTTP/1.1
+    2    5.430  2.7150  0.2280  2.487  2.943  2.943  2.943  2.943  2.943    2    0    0    0       43291      21643      21645      21648  GET /users/transactions.json?created_at=1565568134&item_id=25333 HTTP/1.1
+    2    5.228  2.6140  0.0860  2.528  2.700  2.700  2.700  2.700  2.700    2    0    0    0       42233      21114      21116      21119  GET /users/transactions.json?created_at=1565580324&item_id=37521 HTTP/1.1
+
+Top 20 Sort By Standard Deviation
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+    2    3.630  1.8150  1.4370  0.378  3.252  3.252  3.252  3.252  3.252    1    0    1    0       21530          0      10765      21530  GET /users/transactions.json?created_at=1565571787&item_id=28986 HTTP/1.1
+   61   59.287  0.9719  0.8076  0.000  1.606  1.640  1.845  2.148  2.148   32    0   29    0        2154          0         35         49  POST /buy HTTP/1.1
+    2   11.128  5.5640  0.6230  4.941  6.187  6.187  6.187  6.187  6.187    2    0    0    0       43373      21675      21686      21698  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+    2   11.985  5.9925  0.5025  5.490  6.495  6.495  6.495  6.495  6.495    1    0    1    0       21946          0      10973      21946  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+    2    8.980  4.4900  0.4110  4.079  4.901  4.901  4.901  4.901  4.901    2    0    0    0       43171      21574      21585      21597  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+   42   22.705  0.5406  0.4086  0.000  0.808  0.851  0.886  1.307  1.307   30    0   12    0        2226         29         53         61  POST /ship HTTP/1.1
+   46   25.260  0.5491  0.4043  0.000  0.805  0.887  0.994  1.109  1.109   28    0   18    0        1846         29         40         83  POST /ship_done HTTP/1.1
+   25   18.661  0.7464  0.2939  0.005  0.807  0.966  0.975  1.331  1.331   25    0    0    0         850         34         34         34  POST /complete HTTP/1.1
+    2    7.153  3.5765  0.2665  3.310  3.843  3.843  3.843  3.843  3.843    2    0    0    0       42384      21181      21192      21203  GET /users/transactions.json?created_at=1565572185&item_id=29376 HTTP/1.1
+    5    1.510  0.3020  0.2536  0.077  0.119  0.623  0.623  0.623  0.623    5    0    0    0      114413      22877      22882      22905  GET /new_items/60.json?created_at=1565592585&item_id=49778 HTTP/1.1
+    2    5.477  2.7385  0.2425  2.496  2.981  2.981  2.981  2.981  2.981    2    0    0    0       42762      21380      21381      21382  GET /users/transactions.json?created_at=1565554825&item_id=12017 HTTP/1.1
+    2    5.430  2.7150  0.2280  2.487  2.943  2.943  2.943  2.943  2.943    2    0    0    0       43291      21643      21645      21648  GET /users/transactions.json?created_at=1565568134&item_id=25333 HTTP/1.1
+    2    0.558  0.2790  0.2150  0.064  0.494  0.494  0.494  0.494  0.494    2    0    0    0       47098      23535      23549      23563  GET /new_items/10.json?created_at=1565592458&item_id=49653 HTTP/1.1
+    4    0.829  0.2072  0.2052  0.072  0.122  0.561  0.561  0.561  0.561    4    0    0    0       92672      23168      23168      23168  GET /new_items/60.json?created_at=1565591707&item_id=48899 HTTP/1.1
+    4    0.801  0.2002  0.2051  0.065  0.095  0.555  0.555  0.555  0.555    4    0    0    0       91321      22829      22830      22834  GET /new_items/60.json?created_at=1565592380&item_id=49578 HTTP/1.1
+    4    0.780  0.1950  0.2044  0.061  0.103  0.548  0.548  0.548  0.548    4    0    0    0       91096      22767      22774      22795  GET /new_items/60.json?created_at=1565591926&item_id=49123 HTTP/1.1
+   17    3.586  0.2109  0.1835  0.068  0.123  0.559  0.621  0.621  0.621   17    0    0    0      398228      23231      23425      23609  GET /new_items.json HTTP/1.1
+    2    0.501  0.2505  0.1805  0.070  0.431  0.431  0.431  0.431  0.431    2    0    0    0       47481      23729      23740      23752  GET /users/1254.json HTTP/1.1
+    2    0.404  0.2020  0.1670  0.035  0.369  0.369  0.369  0.369  0.369    2    0    0    0       16775       8384       8387       8391  GET /users/1254.json?created_at=1565550591&item_id=7782 HTTP/1.1
+
+Top 20 Sort By Maximum(100 Percentile)
+Count    Total    Mean  Stddev    Min  P50.0  P90.0  P95.0  P99.0    Max  2xx  3xx  4xx  5xx  TotalBytes   MinBytes  MeanBytes   MaxBytes  Request
+    1    8.444  8.4440  0.0000  8.444  8.444  8.444  8.444  8.444  8.444    1    0    0    0          31         31         31         31  POST /initialize HTTP/1.1
+  116  338.615  2.9191  1.6635  0.042  3.258  4.861  5.507  6.125  7.269  109    0    7    0     2179500          0      18788      30377  GET /users/transactions.json HTTP/1.1
+    2   11.985  5.9925  0.5025  5.490  6.495  6.495  6.495  6.495  6.495    1    0    1    0       21946          0      10973      21946  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+    2   11.128  5.5640  0.6230  4.941  6.187  6.187  6.187  6.187  6.187    2    0    0    0       43373      21675      21686      21698  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+    2    8.980  4.4900  0.4110  4.079  4.901  4.901  4.901  4.901  4.901    2    0    0    0       43171      21574      21585      21597  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+    2    8.442  4.2210  0.1660  4.055  4.387  4.387  4.387  4.387  4.387    2    0    0    0       45015      22496      22507      22519  GET /users/transactions.json?created_at=1565580339&item_id=37531 HTTP/1.1
+    2    8.307  4.1535  0.1005  4.053  4.254  4.254  4.254  4.254  4.254    2    0    0    0       43843      21919      21921      21924  GET /users/transactions.json?created_at=1565585419&item_id=42616 HTTP/1.1
+    1    4.123  4.1230  0.0000  4.123  4.123  4.123  4.123  4.123  4.123    1    0    0    0       22019      22019      22019      22019  GET /users/transactions.json?created_at=1565567320&item_id=24512 HTTP/1.1
+    1    4.073  4.0730  0.0000  4.073  4.073  4.073  4.073  4.073  4.073    1    0    0    0       22003      22003      22003      22003  GET /users/transactions.json?created_at=1565571332&item_id=28528 HTTP/1.1
+    2    7.153  3.5765  0.2665  3.310  3.843  3.843  3.843  3.843  3.843    2    0    0    0       42384      21181      21192      21203  GET /users/transactions.json?created_at=1565572185&item_id=29376 HTTP/1.1
+    2    6.746  3.3730  0.0880  3.285  3.461  3.461  3.461  3.461  3.461    2    0    0    0       43059      21527      21529      21532  GET /users/transactions.json?created_at=1565589254&item_id=46451 HTTP/1.1
+    1    3.392  3.3920  0.0000  3.392  3.392  3.392  3.392  3.392  3.392    1    0    0    0       21372      21372      21372      21372  GET /users/transactions.json?created_at=1565554209&item_id=11407 HTTP/1.1
+    2    6.636  3.3180  0.0460  3.272  3.364  3.364  3.364  3.364  3.364    2    0    0    0       44574      22287      22287      22287  GET /users/transactions.json?created_at=1565584362&item_id=41559 HTTP/1.1
+    1    3.358  3.3580  0.0000  3.358  3.358  3.358  3.358  3.358  3.358    1    0    0    0       21750      21750      21750      21750  GET /users/transactions.json?created_at=1565554219&item_id=11416 HTTP/1.1
+    1    3.329  3.3290  0.0000  3.329  3.329  3.329  3.329  3.329  3.329    1    0    0    0       21536      21536      21536      21536  GET /users/transactions.json?created_at=1565567304&item_id=24502 HTTP/1.1
+    1    3.303  3.3030  0.0000  3.303  3.303  3.303  3.303  3.303  3.303    1    0    0    0       21907      21907      21907      21907  GET /users/transactions.json?created_at=1565562799&item_id=19990 HTTP/1.1
+    2    6.563  3.2815  0.0165  3.265  3.298  3.298  3.298  3.298  3.298    2    0    0    0       43099      21536      21549      21563  GET /users/transactions.json?created_at=1565584756&item_id=41954 HTTP/1.1
+    2    3.630  1.8150  1.4370  0.378  3.252  3.252  3.252  3.252  3.252    1    0    1    0       21530          0      10765      21530  GET /users/transactions.json?created_at=1565571787&item_id=28986 HTTP/1.1
+    2    5.477  2.7385  0.2425  2.496  2.981  2.981  2.981  2.981  2.981    2    0    0    0       42762      21380      21381      21382  GET /users/transactions.json?created_at=1565554825&item_id=12017 HTTP/1.1
+    2    5.430  2.7150  0.2280  2.487  2.943  2.943  2.943  2.943  2.943    2    0    0    0       43291      21643      21645      21648  GET /users/transactions.json?created_at=1565568134&item_id=25333 HTTP/1.1
+
+TOP 37 Slow Requests
+ 1  8.444  POST /initialize HTTP/1.1
+ 2  7.269  GET /users/transactions.json HTTP/1.1
+ 3  6.495  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+ 4  6.187  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+ 5  6.125  GET /users/transactions.json HTTP/1.1
+ 6  6.096  GET /users/transactions.json HTTP/1.1
+ 7  5.714  GET /users/transactions.json HTTP/1.1
+ 8  5.661  GET /users/transactions.json HTTP/1.1
+ 9  5.507  GET /users/transactions.json HTTP/1.1
+10  5.490  GET /users/transactions.json?created_at=1565575811&item_id=33007 HTTP/1.1
+11  5.027  GET /users/transactions.json HTTP/1.1
+12  4.941  GET /users/transactions.json?created_at=1565576271&item_id=33470 HTTP/1.1
+13  4.918  GET /users/transactions.json HTTP/1.1
+14  4.901  GET /users/transactions.json?created_at=1565567911&item_id=25108 HTTP/1.1
+15  4.876  GET /users/transactions.json HTTP/1.1
+16  4.870  GET /users/transactions.json HTTP/1.1
+17  4.868  GET /users/transactions.json HTTP/1.1
+18  4.861  GET /users/transactions.json HTTP/1.1
+19  4.861  GET /users/transactions.json HTTP/1.1
+20  4.861  GET /users/transactions.json HTTP/1.1
+21  4.861  GET /users/transactions.json HTTP/1.1
+22  4.856  GET /users/transactions.json HTTP/1.1
+23  4.854  GET /users/transactions.json HTTP/1.1
+24  4.387  GET /users/transactions.json?created_at=1565580339&item_id=37531 HTTP/1.1
+25  4.344  GET /users/transactions.json HTTP/1.1
+26  4.318  GET /users/transactions.json HTTP/1.1
+27  4.254  GET /users/transactions.json?created_at=1565585419&item_id=42616 HTTP/1.1
+28  4.223  GET /users/transactions.json HTTP/1.1
+29  4.203  GET /users/transactions.json HTTP/1.1
+30  4.192  GET /users/transactions.json HTTP/1.1
+31  4.149  GET /users/transactions.json HTTP/1.1
+32  4.140  GET /users/transactions.json HTTP/1.1
+33  4.124  GET /users/transactions.json HTTP/1.1
+34  4.123  GET /users/transactions.json?created_at=1565567320&item_id=24512 HTTP/1.1
+35  4.116  GET /users/transactions.json HTTP/1.1
+36  4.115  GET /users/transactions.json HTTP/1.1
+37  4.108  GET /users/transactions.json HTTP/1.1
