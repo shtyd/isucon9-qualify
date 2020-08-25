@@ -230,3 +230,7 @@ GET /users/transactions.json?created_at=
 long_query_time = 1にしても出なくなった。  
 先頭のログ開始の表記などは都度書き込まれているので、書き込み失敗している訳ではないはず。  
 インフラ変えただけでスロークエリも無くなった・・？　　
+
+2020/8/25  
+pprofでgoアプリのプロファイルを取る。  
+あまりmacと変わらず、とりあえずmain.GetNewCategoryItemsとmain.PostLoginにかなりCPU時間使っていることは分かる。
