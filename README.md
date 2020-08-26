@@ -234,3 +234,11 @@ long_query_time = 1にしても出なくなった。
 2020/8/25  
 pprofでgoアプリのプロファイルを取る。  
 あまりmacと変わらず、とりあえずmain.GetNewCategoryItemsとmain.PostLoginにかなりCPU時間使っていることは分かる。
+
+2020/8/26  
+キャンペーン = 1に設定してみると、ベンチのリクエストが増えて下記エラーが大量に出て失敗になった。
+```
+ main.go:435: Error 1040: Too many connections
+```
+
+max_connectionを上げればこのエラーが出なくなったがベンチはpassにならない・・。
