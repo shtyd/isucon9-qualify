@@ -254,11 +254,23 @@ worker_rlimit_nofile  200000;
 
 ulimitを見てみるとデフォルトの1024しかなかったので、100000くらいに設定すると、
 too many open filesのエラーもなくなり、スコアも伸びた。
+
+```
+{“pass”:true,“score”:6850,“campaign”:1,“language”:“Go”,“messages”:[]}
+```
+
 ```
 $ ulimit -n
 1024
 
 $ ulimit -Sn 100000
 ```
-ファイルディスクリプタの上限を上げてやる必要があった。
+ファイルディスクリプタの上限を上げてやる必要があった。  
 too many open files -> ファイルディスクリプタの上限を上げる。(nginxとulimit)
+
+
+2020/8/31  
+BcryptCostを最小値(4)に設定。
+```
+{"pass":true,"score":7490,"campaign":1,"language":"Go","messages":[]}
+```
