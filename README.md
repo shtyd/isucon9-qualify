@@ -270,7 +270,91 @@ too many open files -> ファイルディスクリプタの上限を上げる。
 
 
 2020/8/31  
-BcryptCostを最小値(4)に設定。
+BcryptCostを最小値(4)に設定
 ```
 {"pass":true,"score":7490,"campaign":1,"language":"Go","messages":[]}
+```
+
+インデックス貼り忘れ問題はどれだろう？
+item_idとかreserve_idとかにはとりあえずindex貼っておけばよいのだろうか？
+```
+mysql> show index from shippings;
++-----------+------------+----------+--------------+-------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table     | Non_unique | Key_name | Seq_in_index | Column_name             | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-----------+------------+----------+--------------+-------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| shippings |          0 | PRIMARY  |            1 | transaction_evidence_id | A         |       14835 |     NULL | NULL   |      | BTREE      |         |               |
++-----------+------------+----------+--------------+-------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+1 row in set (0.00 sec)
+
+mysql> show columns from shippings;
++-------------------------+-------------------------------------------------+------+-----+-------------------+-------+
+| Field                   | Type                                            | Null | Key | Default           | Extra |
++-------------------------+-------------------------------------------------+------+-----+-------------------+-------+
+| transaction_evidence_id | bigint(20)                                      | NO   | PRI | NULL              |       |
+| status                  | enum('initial','wait_pickup','shipping','done') | NO   |     | NULL              |       |
+| item_name               | varchar(191)                                    | NO   |     | NULL              |       |
+| item_id                 | bigint(20)                                      | NO   |     | NULL              |       |
+| reserve_id              | varchar(191)                                    | NO   |     | NULL              |       |
+| reserve_time            | bigint(20)                                      | NO   |     | NULL              |       |
+| to_address              | varchar(191)                                    | NO   |     | NULL              |       |
+| to_name                 | varchar(191)                                    | NO   |     | NULL              |       |
+| from_address            | varchar(191)                                    | NO   |     | NULL              |       |
+| from_name               | varchar(191)                                    | NO   |     | NULL              |       |
+| img_binary              | mediumblob                                      | NO   |     | NULL              |       |
+| created_at              | datetime                                        | NO   |     | CURRENT_TIMESTAMP |       |
+| updated_at              | datetime                                        | NO   |     | CURRENT_TIMESTAMP |       |
++-------------------------+-------------------------------------------------+------+-----+-------------------+-------+
+13 rows in set (0.00 sec)
+```
+
+
+それとは別でN+1問題を解決していきたい。
+```
+Execute   SELECT * FROM `users` WHERE `id` = 363
+Execute   SELECT * FROM `categories` WHERE `id` = 44
+Execute   SELECT * FROM `categories` WHERE `id` = 44
+Execute   SELECT * FROM `categories` WHERE `id` = 40
+Execute   SELECT * FROM `categories` WHERE `id` = 40
+Execute   SELECT * FROM `categories` WHERE `id` = 11
+
+```
+クエリログを見てみると、この種の単純なSQLが大量に発生している。（全部のSQLのうち8割以上これなのではというくらい）
+N+1問題解決していく。
+
+例えば  
+"SELECT * FROM `users` WHERE `id` = ?"  
+のSQLが入っている関数は
+getUser()とgetUserSimpleByID()で、これを呼んでいる関数の一つはgetNewItems()。  
+forループの中でgetUserSimpleByID()、getCategoryByID() (これも単純なクエリを発行する)を呼んでいる。  
+N+1問題を起こしているところはこういう箇所だ。ここを直していく。
+```
+
+func getNewItems(w http.ResponseWriter, r *http.Request) {
+    ...
+
+	itemSimples := []ItemSimple{}
+	for _, item := range items {
+		seller, err := getUserSimpleByID(dbx, item.SellerID)
+		if err != nil {
+			outputErrorMsg(w, http.StatusNotFound, "seller not found")
+			return
+		}
+		category, err := getCategoryByID(dbx, item.CategoryID)
+		if err != nil {
+			outputErrorMsg(w, http.StatusNotFound, "category not found")
+			return
+		}
+		itemSimples = append(itemSimples, ItemSimple{
+			ID:         item.ID,
+			SellerID:   item.SellerID,
+			Seller:     &seller,
+			Status:     item.Status,
+			Name:       item.Name,
+			Price:      item.Price,
+			ImageURL:   getImageURL(item.ImageName),
+			CategoryID: item.CategoryID,
+			Category:   &category,
+			CreatedAt:  item.CreatedAt.Unix(),
+		})
+	}
 ```
