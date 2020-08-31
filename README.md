@@ -234,3 +234,31 @@ long_query_time = 1にしても出なくなった。
 2020/8/25  
 pprofでgoアプリのプロファイルを取る。  
 あまりmacと変わらず、とりあえずmain.GetNewCategoryItemsとmain.PostLoginにかなりCPU時間使っていることは分かる。
+
+2020/8/26  
+キャンペーン = 1に設定してみると、ベンチのリクエストが増えて下記エラーが大量に出て失敗になった。
+```
+ main.go:435: Error 1040: Too many connections
+```
+
+max_connectionを上げればこのエラーが出なくなったがベンチはpassにならない・・。
+
+2020/8/27  
+too many open filesのエラーがたくさん出ていた。
+```
+2020/08/27 21:50:59 server.go:3095: http: Accept error: accept tcp [::]:7000: accept4: too many open files; retrying in 5ms
+```
+
+nginxて下記設定いれてみても改善せず。  
+worker_rlimit_nofile  200000;
+
+ulimitを見てみるとデフォルトの1024しかなかったので、100000くらいに設定すると、
+too many open filesのエラーもなくなり、スコアも伸びた。
+```
+$ ulimit -n
+1024
+
+$ ulimit -Sn 100000
+```
+ファイルディスクリプタの上限を上げてやる必要があった。
+too many open files -> ファイルディスクリプタの上限を上げる。(nginxとulimit)
