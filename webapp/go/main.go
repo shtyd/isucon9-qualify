@@ -326,6 +326,11 @@ func main() {
 	}
 	defer dbx.Close()
 
+	// caterogyテーブルをメモリで保持
+	caterogyTable := []Category{}
+	sqlx.Get(dbx, &caterogyTable, "SELECT * FROM `categories`")
+	fmt.Printf("(%%#v) %#v\n", caterogyTable)
+
 	mux := goji.NewMux()
 
 	// API
@@ -414,6 +419,7 @@ func getUserSimpleByID(q sqlx.Queryer, userID int64) (userSimple UserSimple, err
 	return userSimple, err
 }
 
+// この程度ならDBアクセスする必要なし。修正。
 func getCategoryByID(q sqlx.Queryer, categoryID int) (category Category, err error) {
 	err = sqlx.Get(q, &category, "SELECT * FROM `categories` WHERE `id` = ?", categoryID)
 	if category.ParentID != 0 {
@@ -605,6 +611,7 @@ func getNewItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rni)
 }
 
+// pprofで見るとこの関数が最初のボトルネック。対処していく。
 func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	rootCategoryIDStr := pat.Param(r, "root_category_id")
 	rootCategoryID, err := strconv.Atoi(rootCategoryIDStr)
@@ -613,12 +620,15 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Categoryの数ってそもそも65しかないマスターデータ。
+	// この程度ならメモリ上で持っておけば済む話。
 	rootCategory, err := getCategoryByID(dbx, rootCategoryID)
 	if err != nil || rootCategory.ParentID != 0 {
 		outputErrorMsg(w, http.StatusNotFound, "category not found")
 		return
 	}
 
+	// parent caterogyがrootCategory.IDであるcaterogyのリストを取得。これもメモリで持っておけば良い。
 	var categoryIDs []int
 	err = dbx.Select(&categoryIDs, "SELECT id FROM `categories` WHERE parent_id=?", rootCategory.ID)
 	if err != nil {
@@ -627,6 +637,7 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//クエリパラメータ取得
 	query := r.URL.Query()
 	itemIDStr := query.Get("item_id")
 	var itemID int64
@@ -638,6 +649,7 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	//クエリパラメータ取得
 	createdAtStr := query.Get("created_at")
 	var createdAt int64
 	if createdAtStr != "" {
