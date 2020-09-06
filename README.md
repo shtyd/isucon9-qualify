@@ -364,3 +364,9 @@ DBのIndex張りをする。
 ```
 {"pass":true,"score":7910,"campaign":1,"language":"Go","messages":["GET /new_items.json: リクエストに失敗しました（タイムアウトしました）","GET /new_items/30.json: リクエストに失敗しました（タイムアウトしました）","GET /settings: リクエストに失敗しました（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1030)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1223)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1420)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1652)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2612)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2669)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2722)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2723)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 3051)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 378)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 434)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 619)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50043)（タイムアウトしました）","POST /login: リクエストに失敗しました（タイムアウトしました）","POST /ship: リクエストに失敗しました (item_id: 50044)（タイムアウトしました）","購入されたはずなのに記録されていません item_id: 50043; expected price: 180"]}
 ```
+
+2020/9/6
+pprofを見ると、最初に処理に時間がかかっているのはgetCategoryByID()関数。
+categoryテーブルはマスターテーブルであり、ベンチマーク中にテーブルが変更されることもない様子から、
+getCategoryByID()の中でSQLを発行するのをやめメモリに連想配列で持たせることでスピードアップ。
+{"pass":true,"score":9930,"campaign":1,"language":"Go","messages":[]}
