@@ -73,7 +73,7 @@ CREATE TABLE `shippings` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_item_id (`item_id`),
-  INDEX idx_reserve_id (`reserve_id`),
+  INDEX idx_reserve_id (`reserve_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4;
 
 DROP TABLE IF EXISTS `categories`;
