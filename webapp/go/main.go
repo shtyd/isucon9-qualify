@@ -102,6 +102,28 @@ type Item struct {
 	UpdatedAt   time.Time `json:"-" db:"updated_at"`
 }
 
+type ItemAndSeller struct {
+	//Items
+	ID          int64     `json:"id" db:"id"`
+	SellerID    int64     `json:"seller_id" db:"seller_id"`
+	BuyerID     int64     `json:"buyer_id" db:"buyer_id"`
+	Status      string    `json:"status" db:"status"`
+	Name        string    `json:"name" db:"name"`
+	Price       int       `json:"price" db:"price"`
+	Description string    `json:"description" db:"description"`
+	ImageName   string    `json:"image_name" db:"image_name"`
+	CategoryID  int       `json:"category_id" db:"category_id"`
+	CreatedAt   time.Time `json:"-" db:"created_at"`
+	UpdatedAt   time.Time `json:"-" db:"updated_at"`
+	//Users
+	AccountName    string    `json:"account_name" db:"account_name"`
+	HashedPassword []byte    `json:"-" db:"hashed_password"`
+	Address        string    `json:"address,omitempty" db:"address"`
+	NumSellItems   int       `json:"num_sell_items" db:"num_sell_items"`
+	LastBump       time.Time `json:"-" db:"last_bump"`
+	UsersCreatedAt time.Time `json:"-" db:"users_created_at"`
+}
+
 type ItemSimple struct {
 	ID         int64       `json:"id"`
 	SellerID   int64       `json:"seller_id"`
@@ -656,7 +678,7 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Categoryの数ってそもそも65しかないマスターデータ。
-	// この程度ならメモリ上で持っておけば済む話。
+	// この程度ならメモリ上で持っておけば済む話。 -> 対処済み。
 	rootCategory, err := getCategoryByID(dbx, rootCategoryID)
 	if err != nil || rootCategory.ParentID != 0 {
 		outputErrorMsg(w, http.StatusNotFound, "category not found")
@@ -700,11 +722,12 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	if itemID > 0 && createdAt > 0 {
 		// paging
 		inQuery, inArgs, err = sqlx.In(
-			"SELECT * FROM `items` "+
-				"WHERE `status` IN (?,?) "+
-				"AND category_id IN (?) "+
-				"AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) "+
-				"ORDER BY `created_at` DESC, `id` DESC "+
+			"SELECT * FROM `items` AS i "+
+				"LFET JOIN users as u on i.seller_id = u.id "+
+				"WHERE `i.status` IN (?,?) "+
+				"AND i.category_id IN (?) "+
+				"AND (`i.created_at` < ?  OR (`i.created_at` <= ? AND `i.id` < ?)) "+
+				"ORDER BY `i.created_at` DESC, `i.id` DESC "+
 				"LIMIT ?",
 			ItemStatusOnSale,
 			ItemStatusSoldOut,
@@ -722,10 +745,11 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// 1st page
 		inQuery, inArgs, err = sqlx.In(
-			"SELECT * FROM `items` "+
-				"WHERE `status` IN (?,?) "+
-				"AND category_id IN (?) "+
-				"ORDER BY created_at DESC, id DESC "+
+			"SELECT * FROM `items` AS i "+
+				"LFET JOIN users as u on i.seller_id = u.id "+
+				"WHERE `i.status` IN (?,?) "+
+				"AND i.category_id IN (?) "+
+				"ORDER BY i.created_at DESC, i.id DESC "+
 				"LIMIT ?",
 			ItemStatusOnSale,
 			ItemStatusSoldOut,
@@ -739,8 +763,10 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items := []Item{}
-	err = dbx.Select(&items, inQuery, inArgs...)
+	//items := []Item{}
+	itemAndSellers := []ItemAndSeller{}
+	//err = dbx.Select(&items, inQuery, inArgs...)
+	err = dbx.Select(&itemAndSellers, inQuery, inArgs...)
 
 	if err != nil {
 		log.Print(err)
@@ -749,28 +775,52 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	itemSimples := []ItemSimple{}
-	for _, item := range items {
-		seller, err := getUserSimpleByID(dbx, item.SellerID)
-		if err != nil {
+	//for _, item := range items {
+	for _, itemAndSeller := range itemAndSellers {
+		// item毎ループでgetUserSimpleByIDがuserテーブルにSQL発行してる。
+		// ここはレコードの変更があるのでメモリで持っておく訳にはいかない。 → JOIN?
+		// item.SellerIDをuserIDとするusersのレコードを取得し、UserSimple構造体にデータを格納すれば良い。
+		// → itemsとusersをusers.SellerIDでLeft OuterJoinして、取得したレコードから
+		// UserSimple構造体にデータを格納してやればいい。
+		/*
+			seller, err := getUserSimpleByID(dbx, item.SellerID)
+			if err != nil {
+				outputErrorMsg(w, http.StatusNotFound, "seller not found")
+				return
+			}
+		*/
+
+		// seller構造体の生成
+		if itemAndSeller.AccountName == "" {
 			outputErrorMsg(w, http.StatusNotFound, "seller not found")
 			return
 		}
-		category, err := getCategoryByID(dbx, item.CategoryID)
+		seller := UserSimple{}
+		/*
+			userSimple.ID = user.ID
+			userSimple.AccountName = user.AccountName
+			userSimple.NumSellItems = user.NumSellItems
+		*/
+		seller.ID = itemAndSeller.ID
+		seller.AccountName = itemAndSeller.AccountName
+		seller.NumSellItems = itemAndSeller.NumSellItems
+
+		category, err := getCategoryByID(dbx, itemAndSeller.CategoryID) //SQL発行しないようにした。 -> ここもJOINしてもいいけど。
 		if err != nil {
 			outputErrorMsg(w, http.StatusNotFound, "category not found")
 			return
 		}
 		itemSimples = append(itemSimples, ItemSimple{
-			ID:         item.ID,
-			SellerID:   item.SellerID,
+			ID:         itemAndSeller.ID,
+			SellerID:   itemAndSeller.SellerID,
 			Seller:     &seller,
-			Status:     item.Status,
-			Name:       item.Name,
-			Price:      item.Price,
-			ImageURL:   getImageURL(item.ImageName),
-			CategoryID: item.CategoryID,
+			Status:     itemAndSeller.Status,
+			Name:       itemAndSeller.Name,
+			Price:      itemAndSeller.Price,
+			ImageURL:   getImageURL(itemAndSeller.ImageName),
+			CategoryID: itemAndSeller.CategoryID,
 			Category:   &category,
-			CreatedAt:  item.CreatedAt.Unix(),
+			CreatedAt:  itemAndSeller.CreatedAt.Unix(),
 		})
 	}
 
