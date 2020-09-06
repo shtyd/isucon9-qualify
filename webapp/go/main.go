@@ -270,6 +270,10 @@ type resSetting struct {
 	Categories        []Category `json:"categories"`
 }
 
+type CategoryTable []Category
+
+var categoryTable CategoryTable
+
 func init() {
 	store = sessions.NewCookieStore([]byte("abc"))
 
@@ -326,10 +330,21 @@ func main() {
 	}
 	defer dbx.Close()
 
-	// caterogyテーブルをメモリで保持
-	caterogyTable := []Category{}
-	sqlx.Get(dbx, &caterogyTable, "SELECT * FROM `categories`")
-	fmt.Printf("(%%#v) %#v\n", caterogyTable)
+	// caterogyテーブルをメモリで保持する
+	rows, err := dbx.Queryx("SELECT * FROM categories")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var category Category
+	//var categoryTable CategoryTable
+	for rows.Next() {
+		err := rows.StructScan(&category)
+		if err != nil {
+			log.Fatal(err)
+		}
+		categoryTable = append(categoryTable, category)
+	}
 
 	mux := goji.NewMux()
 
@@ -421,6 +436,24 @@ func getUserSimpleByID(q sqlx.Queryer, userID int64) (userSimple UserSimple, err
 
 // この程度ならDBアクセスする必要なし。修正。
 func getCategoryByID(q sqlx.Queryer, categoryID int) (category Category, err error) {
+
+	//　エラー処理入れた方がいいか？ とりあえず無し。
+	err = nil
+
+	// 再帰処理はいらない。(caterogy tableのマスターデータがベンチマーク実行中に変更されない限り)
+	category = categoryTable[categoryID-1]
+
+	// 親カテゴリでない場合 -> 親カテゴリの名前を取得
+	if category.ParentID != 0 {
+		parentCategory := categoryTable[category.ParentID-1]
+		category.ParentCategoryName = parentCategory.CategoryName
+	}
+
+	return category, err
+}
+
+/*
+func getCategoryByID(q sqlx.Queryer, categoryID int) (category Category, err error) {
 	err = sqlx.Get(q, &category, "SELECT * FROM `categories` WHERE `id` = ?", categoryID)
 	if category.ParentID != 0 {
 		parentCategory, err := getCategoryByID(q, category.ParentID)
@@ -431,6 +464,7 @@ func getCategoryByID(q sqlx.Queryer, categoryID int) (category Category, err err
 	}
 	return category, err
 }
+*/
 
 func getConfigByName(name string) (string, error) {
 	config := Config{}
