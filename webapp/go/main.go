@@ -272,7 +272,8 @@ type resSetting struct {
 
 type CategoryTable []Category
 
-var categoryTable CategoryTable
+//var categoryTable CategoryTable
+var categoryMap = make(map[string]Category)
 
 func init() {
 	store = sessions.NewCookieStore([]byte("abc"))
@@ -337,13 +338,13 @@ func main() {
 	}
 
 	var category Category
-	//var categoryTable CategoryTable
+	//var categoryMap = make(map[string]Category)
 	for rows.Next() {
 		err := rows.StructScan(&category)
 		if err != nil {
 			log.Fatal(err)
 		}
-		categoryTable = append(categoryTable, category)
+		categoryMap[strconv.Itoa(category.ID)] = category
 	}
 
 	mux := goji.NewMux()
@@ -441,11 +442,11 @@ func getCategoryByID(q sqlx.Queryer, categoryID int) (category Category, err err
 	err = nil
 
 	// 再帰処理はいらない。(caterogy tableのマスターデータがベンチマーク実行中に変更されない限り)
-	category = categoryTable[categoryID-1]
+	category = categoryMap[strconv.Itoa(categoryID)]
 
 	// 親カテゴリでない場合 -> 親カテゴリの名前を取得
 	if category.ParentID != 0 {
-		parentCategory := categoryTable[category.ParentID-1]
+		parentCategory := categoryMap[strconv.Itoa(category.ParentID)]
 		category.ParentCategoryName = parentCategory.CategoryName
 	}
 
