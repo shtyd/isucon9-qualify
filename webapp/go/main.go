@@ -104,24 +104,18 @@ type Item struct {
 
 type ItemAndSeller struct {
 	//Items
-	ID          int64     `json:"id" db:"id"`
-	SellerID    int64     `json:"seller_id" db:"seller_id"`
-	BuyerID     int64     `json:"buyer_id" db:"buyer_id"`
-	Status      string    `json:"status" db:"status"`
-	Name        string    `json:"name" db:"name"`
-	Price       int       `json:"price" db:"price"`
-	Description string    `json:"description" db:"description"`
-	ImageName   string    `json:"image_name" db:"image_name"`
-	CategoryID  int       `json:"category_id" db:"category_id"`
-	CreatedAt   time.Time `json:"-" db:"created_at"`
-	UpdatedAt   time.Time `json:"-" db:"updated_at"`
+	ID         int64     `json:"id" db:"id"`
+	SellerID   int64     `json:"seller_id" db:"seller_id"`
+	BuyerID    int64     `json:"buyer_id" db:"buyer_id"`
+	Status     string    `json:"status" db:"status"`
+	Name       string    `json:"name" db:"name"`
+	Price      int       `json:"price" db:"price"`
+	ImageName  string    `json:"image_name" db:"image_name"`
+	CategoryID int       `json:"category_id" db:"category_id"`
+	CreatedAt  time.Time `json:"-" db:"created_at"`
 	//Users
-	AccountName    string    `json:"account_name" db:"account_name"`
-	HashedPassword []byte    `json:"-" db:"hashed_password"`
-	Address        string    `json:"address,omitempty" db:"address"`
-	NumSellItems   int       `json:"num_sell_items" db:"num_sell_items"`
-	LastBump       time.Time `json:"-" db:"last_bump"`
-	UsersCreatedAt time.Time `json:"-" db:"users_created_at"`
+	AccountName  string `json:"account_name" db:"account_name"`
+	NumSellItems int    `json:"num_sell_items" db:"num_sell_items"`
 }
 
 type ItemSimple struct {
@@ -773,6 +767,8 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		outputErrorMsg(w, http.StatusInternalServerError, "db error")
 		return
 	}
+
+	fmt.Println(itemAndSellers)
 
 	itemSimples := []ItemSimple{}
 	//for _, item := range items {
