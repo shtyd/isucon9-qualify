@@ -716,7 +716,8 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	if itemID > 0 && createdAt > 0 {
 		// paging
 		inQuery, inArgs, err = sqlx.In(
-			"SELECT * FROM `items` AS i "+
+			"SELECT i.ID, i.SellerID, i.BuyerID, i.Status, i.Name, i.Price, i.ImageName, i.CategoryID, i.CreatedAt, u.AccountName, u.NumSellItems "+
+				"FROM `items` AS i "+
 				"INNER JOIN users as u on i.seller_id = u.id "+
 				"WHERE i.status IN (?,?) "+
 				"AND i.category_id IN (?) "+
@@ -739,7 +740,8 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// 1st page
 		inQuery, inArgs, err = sqlx.In(
-			"SELECT * FROM `items` AS i "+
+			"SELECT i.ID, i.SellerID, i.BuyerID, i.Status, i.Name, i.Price, i.ImageName, i.CategoryID, i.CreatedAt, u.AccountName, u.NumSellItems "+
+				"FROM `items` AS i "+
 				"INNER JOIN users as u on i.seller_id = u.id "+
 				"WHERE i.status IN (?,?) "+
 				"AND i.category_id IN (?) "+
