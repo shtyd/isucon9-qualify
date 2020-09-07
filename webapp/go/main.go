@@ -557,7 +557,7 @@ func postInitialize(w http.ResponseWriter, r *http.Request) {
 
 	res := resInitialize{
 		// キャンペーン実施時には還元率の設定を返す。詳しくはマニュアルを参照のこと。
-		Campaign: 1,
+		Campaign: 2,
 		// 実装言語を返す
 		Language: "Go",
 	}
@@ -770,7 +770,7 @@ func getNewCategoryItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(itemAndSellers)
+	//fmt.Println(itemAndSellers)
 
 	itemSimples := []ItemSimple{}
 	//for _, item := range items {
