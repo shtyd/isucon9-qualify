@@ -370,3 +370,12 @@ pprofを見ると、最初に処理に時間がかかっているのはgetCatego
 categoryテーブルはマスターテーブルであり、ベンチマーク中にテーブルが変更されることもない様子から、
 getCategoryByID()の中でSQLを発行するのをやめメモリに連想配列で持たせることでスピードアップ。
 {"pass":true,"score":9930,"campaign":1,"language":"Go","messages":[]}
+
+2020/9/7
+getCategoryNewItem()のN+1解消 + campaing=2で1万点超え。
+(N+1問題解消でも思ったより伸びなかった・・。categoriesテーブルをメモリに載せた方が大きく伸びた。)
+```
+{"pass":true,"score":10910,"campaign":2,"language":"Go","messages":["GET /new_items.json: リクエストに失敗しました（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1509)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1607)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 1766)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 188)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2076)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2459)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2592)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2602)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2618)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2672)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 2735)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 302)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 3234)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 339)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 3596)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 3657)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 716)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 839)（タイムアウトしました）","GET /users/transactions.json リクエストに失敗しました (user_id: 901)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50066)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50067)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50068)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50069)（タイムアウトしました）","POST /buy: リクエストに失敗しました (item_id: 50070)（タイムアウトしました）","POST /sell: リクエストに失敗しました（タイムアウトしました）","POST /ship_done: リクエストに失敗しました (item_id: 50064)（タイムアウトしました）"]}
+```
+
+他にもN+1と、IN句など直す箇所は残ってる。
