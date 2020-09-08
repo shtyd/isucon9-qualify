@@ -957,8 +957,10 @@ func getUserItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rui)
 }
 
+// ここも同じくN+1問題があるので直していく。
 func getTransactions(w http.ResponseWriter, r *http.Request) {
 
+	// この関数なんとかならないか・・。
 	user, errCode, errMsg := getUser(r)
 	if errMsg != "" {
 		outputErrorMsg(w, errCode, errMsg)
@@ -994,17 +996,19 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		err := tx.Select(&items,
 			"SELECT * FROM `items` "+
 				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
-				"AND `status` IN (?,?,?,?,?) "+
+				//"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだが。不要な条件では？
 				"AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) "+
 				"ORDER BY `created_at` DESC, `id` DESC "+
 				"LIMIT ?",
 			user.ID,
 			user.ID,
-			ItemStatusOnSale,
-			ItemStatusTrading,
-			ItemStatusSoldOut,
-			ItemStatusCancel,
-			ItemStatusStop,
+			/*
+				ItemStatusOnSale,
+				ItemStatusTrading,
+				ItemStatusSoldOut,
+				ItemStatusCancel,
+				ItemStatusStop,
+			*/
 			time.Unix(createdAt, 0),
 			time.Unix(createdAt, 0),
 			itemID,
@@ -1021,16 +1025,18 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		err := tx.Select(&items,
 			"SELECT * FROM `items` "+
 				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
-				"AND `status` IN (?,?,?,?,?) "+
+				//"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだが。不要な条件では？
 				"ORDER BY `created_at` DESC, `id` DESC  "+
 				"LIMIT ?",
 			user.ID,
 			user.ID,
-			ItemStatusOnSale,
-			ItemStatusTrading,
-			ItemStatusSoldOut,
-			ItemStatusCancel,
-			ItemStatusStop,
+			/*
+				ItemStatusOnSale,
+				ItemStatusTrading,
+				ItemStatusSoldOut,
+				ItemStatusCancel,
+				ItemStatusStop,
+			*/
 			TransactionsPerPage+1,
 		)
 		if err != nil {
@@ -1043,6 +1049,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 
 	itemDetails := []ItemDetail{}
 	for _, item := range items {
+		// ここはitemのselectとJOINする。
 		seller, err := getUserSimpleByID(tx, item.SellerID)
 		if err != nil {
 			outputErrorMsg(w, http.StatusNotFound, "seller not found")
