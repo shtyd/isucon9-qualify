@@ -1046,7 +1046,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 				"LEFT JOIN transaction_evidences as t "+
 				"ON i.id = t.item_id "+
 				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
-				"AND status IN (?,?,?,?,?) "+
+				"AND i.status IN (?,?,?,?,?) "+
 				"AND (i.created_at < ?  OR (i.created_at <= ? AND i.id < ?)) "+
 				"ORDER BY i.created_at DESC, i.id DESC "+
 				"LIMIT ?",
@@ -1090,7 +1090,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 				"LEFT JOIN transaction_evidences as t "+
 				"ON i.id = t.item_id "+
 				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
-				"AND status IN (?,?,?,?,?) "+
+				"AND i.status IN (?,?,?,?,?) "+
 				"ORDER BY i.created_at DESC, i.id DESC "+
 				"LIMIT ?",
 			user.ID,
