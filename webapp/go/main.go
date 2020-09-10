@@ -138,8 +138,8 @@ type GetTransaction struct {
 	BuyerAccountName  sql.NullString `json:"buyer_account_name" db:"buyer_account_name"`
 	BuyerNumSellItems sql.NullInt64  `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
 	//TransactionEvidence //item_id = Item.ID
-	TransactionID     int64  `json:"transaction_id" db:"transaction_id"`
-	TransactionStatus string `json:"transaction_status" db:"transaction_status"`
+	TransactionID     sql.NullInt64  `json:"transaction_id" db:"transaction_id"`
+	TransactionStatus sql.NullString `json:"transaction_status" db:"transaction_status"`
 	/*
 		//Shipping			  //transaction_evidence_id = TransactionEvidence.ID
 		TransactionEvidenceID int64  `json:"transaction_evidence_id" db:"transaction_evidence_id"`
@@ -1193,22 +1193,28 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 
 		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
 		// item.IDとleft outer joinする。
-		transactionEvidence := TransactionEvidence{}
-		err = tx.Get(&transactionEvidence, "SELECT id, status FROM `transaction_evidences` WHERE `item_id` = ?", transaction.ID)
-		if err != nil && err != sql.ErrNoRows {
-			// It's able to ignore ErrNoRows
-			log.Print(err)
-			outputErrorMsg(w, http.StatusInternalServerError, "db error")
-			tx.Rollback()
-			return
+		/*
+			transactionEvidence := TransactionEvidence{}
+			err = tx.Get(&transactionEvidence, "SELECT id, status FROM `transaction_evidences` WHERE `item_id` = ?", transaction.ID)
+			if err != nil && err != sql.ErrNoRows {
+				// It's able to ignore ErrNoRows
+				log.Print(err)
+				outputErrorMsg(w, http.StatusInternalServerError, "db error")
+				tx.Rollback()
+				return
+			}
+		*/
+		var transactionID int64 = 0
+		if transaction.TransactionID.Valid {
+			transactionID = transaction.TransactionID.Int64
 		}
 		/* ---- とりあえずここまで結合 ---- */
 
-		if transactionEvidence.ID > 0 {
+		if transactionID > 0 {
 			// shippingのReserveIDしか使ってない。*でselectするな。
 			// transaction_evidenceとIDでleft outer join.
 			shipping := Shipping{}
-			err = tx.Get(&shipping, "SELECT reserve_id FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
+			err = tx.Get(&shipping, "SELECT reserve_id FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionID)
 			if err == sql.ErrNoRows {
 				outputErrorMsg(w, http.StatusNotFound, "shipping not found")
 				tx.Rollback()
@@ -1230,8 +1236,8 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			itemDetail.TransactionEvidenceID = transactionEvidence.ID
-			itemDetail.TransactionEvidenceStatus = transactionEvidence.Status
+			itemDetail.TransactionEvidenceID = transactionID
+			itemDetail.TransactionEvidenceStatus = transaction.TransactionStatus.String
 			itemDetail.ShippingStatus = ssr.Status
 		}
 
