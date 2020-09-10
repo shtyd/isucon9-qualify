@@ -133,8 +133,10 @@ type GetTransaction struct {
 	SellerAccountName  string `json:"seller_account_name" db:"seller_account_name"` //ここの名前これでよいのか？かぶってるけど
 	SellerNumSellItems int    `json:"seller_num_sell_items" db:"seller_num_sell_items"`
 	//User(buyer)		 //ID = Item.BuyerID
-	BuyerAccountName  string `json:"buyer_account_name" db:"buyer_account_name"`
-	BuyerNumSellItems int    `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
+	//BuyerAccountName  string `json:"buyer_account_name" db:"buyer_account_name"`
+	//BuyerNumSellItems int    `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
+	BuyerAccountName  sql.NullString `json:"buyer_account_name" db:"buyer_account_name"`
+	BuyerNumSellItems sql.NullInt64  `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
 	/* まずはおためし。ここまで結合
 	//TransactionEvidence //item_id = Item.ID
 	TransactionID     int64  `json:"id" db:"id"`
@@ -1165,18 +1167,23 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 				itemDetail.Buyer = &buyer
 			}
 		*/
-		buyer := UserSimple{}
-		/*
-			userSimple.ID = user.ID
-			userSimple.AccountName = user.AccountName
-			userSimple.NumSellItems = user.NumSellItems
-		*/
-		buyer.ID = transaction.BuyerID
-		buyer.AccountName = transaction.BuyerAccountName
-		buyer.NumSellItems = transaction.BuyerNumSellItems
+		// ↑BuyerID=0の場合はitemDetailにBuyerID, &buyerを入れないらしい。
+		// かといってこの単発のSQLを発行したくない。
+		// ↑BuyerID=0なら↑の２つを削除するという風にしよう。
+		if transaction.BuyerID != 0 {
+			buyer := UserSimple{}
+			/*
+				userSimple.ID = user.ID
+				userSimple.AccountName = user.AccountName
+				userSimple.NumSellItems = user.NumSellItems
+			*/
+			buyer.ID = transaction.BuyerID
+			buyer.AccountName = transaction.BuyerAccountName.String
+			buyer.NumSellItems = int(transaction.BuyerNumSellItems.Int64)
 
-		itemDetail.BuyerID = transaction.BuyerID
-		itemDetail.Buyer = &buyer
+			itemDetail.BuyerID = transaction.BuyerID
+			itemDetail.Buyer = &buyer
+		}
 		/* ---- とりあえずここまで結合 ---- */
 
 		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
