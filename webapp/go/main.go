@@ -1189,7 +1189,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
 		// item.IDとleft outer joinする。
 		transactionEvidence := TransactionEvidence{}
-		err = tx.Get(&transactionEvidence, "SELECT * FROM `transaction_evidences` WHERE `item_id` = ?", transaction.ID)
+		err = tx.Get(&transactionEvidence, "SELECT id, status FROM `transaction_evidences` WHERE `item_id` = ?", transaction.ID)
 		if err != nil && err != sql.ErrNoRows {
 			// It's able to ignore ErrNoRows
 			log.Print(err)
@@ -1202,7 +1202,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			// shippingのReserveIDしか使ってない。*でselectするな。
 			// transaction_evidenceとIDでleft outer join.
 			shipping := Shipping{}
-			err = tx.Get(&shipping, "SELECT * FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
+			err = tx.Get(&shipping, "SELECT reserve_id FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
 			if err == sql.ErrNoRows {
 				outputErrorMsg(w, http.StatusNotFound, "shipping not found")
 				tx.Rollback()
