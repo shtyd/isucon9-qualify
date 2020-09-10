@@ -137,15 +137,15 @@ type GetTransaction struct {
 	//BuyerNumSellItems int    `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
 	BuyerAccountName  sql.NullString `json:"buyer_account_name" db:"buyer_account_name"`
 	BuyerNumSellItems sql.NullInt64  `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
-	/* まずはおためし。ここまで結合
 	//TransactionEvidence //item_id = Item.ID
-	TransactionID     int64  `json:"id" db:"id"`
-	TransactionStatus string `json:"status" db:"status"`
-	//Shipping			  //transaction_evidence_id = TransactionEvidence.ID
-	TransactionEvidenceID int64  `json:"transaction_evidence_id" db:"transaction_evidence_id"`
-	ShippingStatus        string `json:"status" db:"status"`
-	ItemID                int64  `json:"item_id" db:"item_id"`
-	ReserveID             string `json:"reserve_id" db:"reserve_id"`
+	TransactionID     int64  `json:"transaction_id" db:"transaction_id"`
+	TransactionStatus string `json:"transaction_status" db:"transaction_status"`
+	/*
+		//Shipping			  //transaction_evidence_id = TransactionEvidence.ID
+		TransactionEvidenceID int64  `json:"transaction_evidence_id" db:"transaction_evidence_id"`
+		ShippingStatus        string `json:"status" db:"status"`
+		ItemID                int64  `json:"item_id" db:"item_id"`
+		ReserveID             string `json:"reserve_id" db:"reserve_id"`
 	*/
 }
 
@@ -1037,11 +1037,14 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items "+
+				"t.id, t.status "+
 				"FROM items AS i "+
 				"LEFT JOIN users AS seller "+
 				"ON i.seller_id = seller.id "+
 				"LEFT JOIN users as buyer "+
 				"ON i.buyer_id = buyer.id "+
+				"LEFT JOIN transaction_evidences as t "+
+				"ON i.id = t.item_id "+
 				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
 				"AND status IN (?,?,?,?,?) "+
 				"AND (i.created_at < ?  OR (i.created_at <= ? AND i.id < ?)) "+
@@ -1078,11 +1081,14 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items "+
+				"t.id AS transaction_id, t.status transaction_status"+
 				"FROM items AS i "+
 				"LEFT JOIN users AS seller "+
 				"ON i.seller_id = seller.id "+
 				"LEFT JOIN users as buyer "+
 				"ON i.buyer_id = buyer.id "+
+				"LEFT JOIN transaction_evidences as t "+
+				"ON i.id = t.item_id "+
 				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
 				"AND status IN (?,?,?,?,?) "+
 				"ORDER BY i.created_at DESC, i.id DESC "+
@@ -1184,7 +1190,6 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			itemDetail.BuyerID = transaction.BuyerID
 			itemDetail.Buyer = &buyer
 		}
-		/* ---- とりあえずここまで結合 ---- */
 
 		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
 		// item.IDとleft outer joinする。
@@ -1197,6 +1202,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			tx.Rollback()
 			return
 		}
+		/* ---- とりあえずここまで結合 ---- */
 
 		if transactionEvidence.ID > 0 {
 			// shippingのReserveIDしか使ってない。*でselectするな。
