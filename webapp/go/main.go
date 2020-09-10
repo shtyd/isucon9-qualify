@@ -1037,7 +1037,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
-				"t.id, t.status "+
+				"t.id AS transaction_id, t.status transaction_status "+
 				"FROM items AS i "+
 				"LEFT JOIN users AS seller "+
 				"ON i.seller_id = seller.id "+
@@ -1081,7 +1081,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
-				"t.id AS transaction_id, t.status transaction_status"+
+				"t.id AS transaction_id, t.status transaction_status "+
 				"FROM items AS i "+
 				"LEFT JOIN users AS seller "+
 				"ON i.seller_id = seller.id "+
