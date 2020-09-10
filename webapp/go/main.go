@@ -117,6 +117,35 @@ type ItemAndSeller struct {
 	AccountName  string `json:"account_name" db:"account_name"`
 	NumSellItems int    `json:"num_sell_items" db:"num_sell_items"`
 }
+type GetTransaction struct {
+	//Item
+	ID          int64     `json:"id" db:"id"`
+	SellerID    int64     `json:"seller_id" db:"seller_id"`
+	BuyerID     int64     `json:"buyer_id" db:"buyer_id"`
+	Status      string    `json:"status" db:"status"`
+	Name        string    `json:"name" db:"name"`
+	Price       int       `json:"price" db:"price"`
+	Description string    `json:"description" db:"description"`
+	ImageName   string    `json:"image_name" db:"image_name"`
+	CategoryID  int       `json:"category_id" db:"category_id"`
+	CreatedAt   time.Time `json:"-" db:"created_at"`
+	//User(seller)       //ID = Item.SellerID
+	SellerAccountName  string `json:"seller_account_name" db:"seller_account_name"` //ここの名前これでよいのか？かぶってるけど
+	SellerNumSellItems int    `json:"seller_num_sell_items" db:"seller_num_sell_items"`
+	//User(buyer)		 //ID = Item.BuyerID
+	BuyerAccountName  string `json:"buyer_account_name" db:"buyer_account_name"`
+	BuyerNumSellItems int    `json:"buyer_num_sell_items" db:"buyer_num_sell_items"`
+	/* まずはおためし。ここまで結合
+	//TransactionEvidence //item_id = Item.ID
+	TransactionID     int64  `json:"id" db:"id"`
+	TransactionStatus string `json:"status" db:"status"`
+	//Shipping			  //transaction_evidence_id = TransactionEvidence.ID
+	TransactionEvidenceID int64  `json:"transaction_evidence_id" db:"transaction_evidence_id"`
+	ShippingStatus        string `json:"status" db:"status"`
+	ItemID                int64  `json:"item_id" db:"item_id"`
+	ReserveID             string `json:"reserve_id" db:"reserve_id"`
+	*/
+}
 
 type ItemSimple struct {
 	ID         int64       `json:"id"`
@@ -990,25 +1019,39 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tx := dbx.MustBegin()
-	items := []Item{}
+	//items := []Item{}
+	transactions := []GetTransaction{}
 	if itemID > 0 && createdAt > 0 {
 		// paging
-		err := tx.Select(&items,
-			"SELECT * FROM `items` "+
-				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
-				//"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだが。不要な条件では？
-				"AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) "+
-				"ORDER BY `created_at` DESC, `id` DESC "+
+		err := tx.Select(&transactions,
+			/*
+				"SELECT * FROM `items` "+
+					"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
+					"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだがら不要と思って削ったらスコア下がりまくった。これ以外のステータスがあるってこと？
+					"AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) "+
+					"ORDER BY `created_at` DESC, `id` DESC "+
+					"LIMIT ?",
+			*/
+			"SELECT id, seller_id, buyer_id, status, name, price, description, image_name, category_id, created_at, "+
+				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
+				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
+				"FROM items AS i "+
+				"LEFT JOIN users AS seller "+
+				"ON i.seller_id = seller.id "+
+				"LEFT JOIN users as buyer "+
+				"ON i.buyer_id = buyer.id "+
+				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
+				"AND status IN (?,?,?,?,?) "+
+				"AND (`i.created_at` < ?  OR (`i.created_at` <= ? AND i.id < ?)) "+
+				"ORDER BY i.created_at DESC, i.id DESC "+
 				"LIMIT ?",
 			user.ID,
 			user.ID,
-			/*
-				ItemStatusOnSale,
-				ItemStatusTrading,
-				ItemStatusSoldOut,
-				ItemStatusCancel,
-				ItemStatusStop,
-			*/
+			ItemStatusOnSale,
+			ItemStatusTrading,
+			ItemStatusSoldOut,
+			ItemStatusCancel,
+			ItemStatusStop,
 			time.Unix(createdAt, 0),
 			time.Unix(createdAt, 0),
 			itemID,
@@ -1022,21 +1065,33 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 1st page
-		err := tx.Select(&items,
-			"SELECT * FROM `items` "+
-				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
-				//"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだが。不要な条件では？
-				"ORDER BY `created_at` DESC, `id` DESC  "+
+		err := tx.Select(&transactions,
+			/*
+				"SELECT * FROM `items` "+
+					"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
+					"AND `status` IN (?,?,?,?,?) "+ //上のコメントと同じ。
+					"ORDER BY `created_at` DESC, `id` DESC  "+
+					"LIMIT ?",
+			*/
+			"SELECT id, seller_id, buyer_id, status, name, price, description, image_name, category_id, created_at, "+
+				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
+				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
+				"FROM items AS i "+
+				"LEFT JOIN users AS seller "+
+				"ON i.seller_id = seller.id "+
+				"LEFT JOIN users as buyer "+
+				"ON i.buyer_id = buyer.id "+
+				"WHERE (i.seller_id = ? OR i.buyer_id = ?) "+
+				"AND status IN (?,?,?,?,?) "+
+				"ORDER BY i.created_at DESC, i.id DESC "+
 				"LIMIT ?",
 			user.ID,
 			user.ID,
-			/*
-				ItemStatusOnSale,
-				ItemStatusTrading,
-				ItemStatusSoldOut,
-				ItemStatusCancel,
-				ItemStatusStop,
-			*/
+			ItemStatusOnSale,
+			ItemStatusTrading,
+			ItemStatusSoldOut,
+			ItemStatusCancel,
+			ItemStatusStop,
 			TransactionsPerPage+1,
 		)
 		if err != nil {
@@ -1048,15 +1103,28 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	itemDetails := []ItemDetail{}
-	for _, item := range items {
+	for _, transaction := range transactions {
 		// ここはitemのselectとJOINする。
-		seller, err := getUserSimpleByID(tx, item.SellerID)
-		if err != nil {
-			outputErrorMsg(w, http.StatusNotFound, "seller not found")
-			tx.Rollback()
-			return
-		}
-		category, err := getCategoryByID(tx, item.CategoryID)
+		// seller構造体の要素はJOINして取ってきたレコードから自前で格納する。
+		/*
+			seller, err := getUserSimpleByID(tx, item.SellerID)
+			if err != nil {
+				outputErrorMsg(w, http.StatusNotFound, "seller not found")
+				tx.Rollback()
+				return
+			}
+		*/
+		seller := UserSimple{}
+		/*
+			userSimple.ID = user.ID
+			userSimple.AccountName = user.AccountName
+			userSimple.NumSellItems = user.NumSellItems
+		*/
+		seller.ID = transaction.SellerID
+		seller.AccountName = transaction.SellerAccountName
+		seller.NumSellItems = transaction.SellerNumSellItems
+
+		category, err := getCategoryByID(tx, transaction.CategoryID)
 		if err != nil {
 			outputErrorMsg(w, http.StatusNotFound, "category not found")
 			tx.Rollback()
@@ -1064,37 +1132,57 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		}
 
 		itemDetail := ItemDetail{
-			ID:       item.ID,
-			SellerID: item.SellerID,
+			ID:       transaction.ID,
+			SellerID: transaction.SellerID,
 			Seller:   &seller,
 			// BuyerID
 			// Buyer
-			Status:      item.Status,
-			Name:        item.Name,
-			Price:       item.Price,
-			Description: item.Description,
-			ImageURL:    getImageURL(item.ImageName),
-			CategoryID:  item.CategoryID,
+			Status:      transaction.Status,
+			Name:        transaction.Name,
+			Price:       transaction.Price,
+			Description: transaction.Description,
+			ImageURL:    getImageURL(transaction.ImageName),
+			CategoryID:  transaction.CategoryID,
 			// TransactionEvidenceID
 			// TransactionEvidenceStatus
 			// ShippingStatus
 			Category:  &category,
-			CreatedAt: item.CreatedAt.Unix(),
+			CreatedAt: transaction.CreatedAt.Unix(),
 		}
 
-		if item.BuyerID != 0 {
-			buyer, err := getUserSimpleByID(tx, item.BuyerID)
-			if err != nil {
-				outputErrorMsg(w, http.StatusNotFound, "buyer not found")
-				tx.Rollback()
-				return
+		// どうして上のitemsのクエリの結果を使ってはいけないの？
+		// 使えばいい。Buyer構造体の要素については上のitemのクエリでJOINして(buyerIdで)
+		// 取ってきたレコードから自分で入れればいい。
+		/*
+			if item.BuyerID != 0 {
+				buyer, err := getUserSimpleByID(tx, item.BuyerID)
+				if err != nil {
+					outputErrorMsg(w, http.StatusNotFound, "buyer not found")
+					tx.Rollback()
+					return
+				}
+				itemDetail.BuyerID = item.BuyerID
+				itemDetail.Buyer = &buyer
 			}
-			itemDetail.BuyerID = item.BuyerID
-			itemDetail.Buyer = &buyer
-		}
+		*/
+		buyer := UserSimple{}
+		/*
+			userSimple.ID = user.ID
+			userSimple.AccountName = user.AccountName
+			userSimple.NumSellItems = user.NumSellItems
+		*/
+		buyer.ID = transaction.BuyerID
+		buyer.AccountName = transaction.BuyerAccountName
+		buyer.NumSellItems = transaction.BuyerNumSellItems
 
+		itemDetail.BuyerID = transaction.BuyerID
+		itemDetail.Buyer = &buyer
+		/* ---- とりあえずここまで結合 ---- */
+
+		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
+		// item.IDとleft outer joinする。
 		transactionEvidence := TransactionEvidence{}
-		err = tx.Get(&transactionEvidence, "SELECT * FROM `transaction_evidences` WHERE `item_id` = ?", item.ID)
+		err = tx.Get(&transactionEvidence, "SELECT * FROM `transaction_evidences` WHERE `item_id` = ?", transaction.ID)
 		if err != nil && err != sql.ErrNoRows {
 			// It's able to ignore ErrNoRows
 			log.Print(err)
@@ -1104,6 +1192,8 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if transactionEvidence.ID > 0 {
+			// shippingのReserveIDしか使ってない。*でselectするな。
+			// transaction_evidenceとIDでleft outer join.
 			shipping := Shipping{}
 			err = tx.Get(&shipping, "SELECT * FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
 			if err == sql.ErrNoRows {
@@ -1249,6 +1339,207 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 	json.NewEncoder(w).Encode(itemDetail)
 }
+
+/*
+// もとのやつ残しておく。
+func getTransactions(w http.ResponseWriter, r *http.Request) {
+
+	// この関数なんとかならないか・・。
+	user, errCode, errMsg := getUser(r)
+	if errMsg != "" {
+		outputErrorMsg(w, errCode, errMsg)
+		return
+	}
+
+	query := r.URL.Query()
+	itemIDStr := query.Get("item_id")
+	var err error
+	var itemID int64
+	if itemIDStr != "" {
+		itemID, err = strconv.ParseInt(itemIDStr, 10, 64)
+		if err != nil || itemID <= 0 {
+			outputErrorMsg(w, http.StatusBadRequest, "item_id param error")
+			return
+		}
+	}
+
+	createdAtStr := query.Get("created_at")
+	var createdAt int64
+	if createdAtStr != "" {
+		createdAt, err = strconv.ParseInt(createdAtStr, 10, 64)
+		if err != nil || createdAt <= 0 {
+			outputErrorMsg(w, http.StatusBadRequest, "created_at param error")
+			return
+		}
+	}
+
+	tx := dbx.MustBegin()
+	items := []Item{}
+	if itemID > 0 && createdAt > 0 {
+		// paging
+		err := tx.Select(&items,
+			"SELECT * FROM `items` "+
+				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
+				"AND `status` IN (?,?,?,?,?) "+ //この5つのステータスで全てだがら不要と思って削ったらスコア下がりまくった。これ以外のステータスがあるってこと？
+				"AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) "+
+				"ORDER BY `created_at` DESC, `id` DESC "+
+				"LIMIT ?",
+			user.ID,
+			user.ID,
+			ItemStatusOnSale,
+			ItemStatusTrading,
+			ItemStatusSoldOut,
+			ItemStatusCancel,
+			ItemStatusStop,
+			time.Unix(createdAt, 0),
+			time.Unix(createdAt, 0),
+			itemID,
+			TransactionsPerPage+1,
+		)
+		if err != nil {
+			log.Print(err)
+			outputErrorMsg(w, http.StatusInternalServerError, "db error")
+			tx.Rollback()
+			return
+		}
+	} else {
+		// 1st page
+		err := tx.Select(&items,
+			"SELECT * FROM `items` "+
+				"WHERE (`seller_id` = ? OR `buyer_id` = ?) "+
+				"AND `status` IN (?,?,?,?,?) "+ //上のコメントと同じ。
+				"ORDER BY `created_at` DESC, `id` DESC  "+
+				"LIMIT ?",
+			user.ID,
+			user.ID,
+			ItemStatusOnSale,
+			ItemStatusTrading,
+			ItemStatusSoldOut,
+			ItemStatusCancel,
+			ItemStatusStop,
+			TransactionsPerPage+1,
+		)
+		if err != nil {
+			log.Print(err)
+			outputErrorMsg(w, http.StatusInternalServerError, "db error")
+			tx.Rollback()
+			return
+		}
+	}
+
+	itemDetails := []ItemDetail{}
+	for _, item := range items {
+		// ここはitemのselectとJOINする。
+		// seller構造体の要素はJOINして取ってきたレコードから自前で格納する。
+		seller, err := getUserSimpleByID(tx, item.SellerID)
+		if err != nil {
+			outputErrorMsg(w, http.StatusNotFound, "seller not found")
+			tx.Rollback()
+			return
+		}
+		category, err := getCategoryByID(tx, item.CategoryID)
+		if err != nil {
+			outputErrorMsg(w, http.StatusNotFound, "category not found")
+			tx.Rollback()
+			return
+		}
+
+		itemDetail := ItemDetail{
+			ID:       item.ID,
+			SellerID: item.SellerID,
+			Seller:   &seller,
+			// BuyerID
+			// Buyer
+			Status:      item.Status,
+			Name:        item.Name,
+			Price:       item.Price,
+			Description: item.Description,
+			ImageURL:    getImageURL(item.ImageName),
+			CategoryID:  item.CategoryID,
+			// TransactionEvidenceID
+			// TransactionEvidenceStatus
+			// ShippingStatus
+			Category:  &category,
+			CreatedAt: item.CreatedAt.Unix(),
+		}
+
+		// どうして上のitemsのクエリの結果を使ってはいけないの？
+		// 使えばいい。Buyer構造体の要素については上のitemのクエリでJOINして(buyerIdで)
+		// 取ってきたレコードから自分で入れればいい。
+		if item.BuyerID != 0 {
+			buyer, err := getUserSimpleByID(tx, item.BuyerID)
+			if err != nil {
+				outputErrorMsg(w, http.StatusNotFound, "buyer not found")
+				tx.Rollback()
+				return
+			}
+			itemDetail.BuyerID = item.BuyerID
+			itemDetail.Buyer = &buyer
+		}
+
+		// transaction_evidencesのIDとstatusしか使ってない。 *でselectするな。
+		// item.IDとleft outer joinする。
+		transactionEvidence := TransactionEvidence{}
+		err = tx.Get(&transactionEvidence, "SELECT * FROM `transaction_evidences` WHERE `item_id` = ?", item.ID)
+		if err != nil && err != sql.ErrNoRows {
+			// It's able to ignore ErrNoRows
+			log.Print(err)
+			outputErrorMsg(w, http.StatusInternalServerError, "db error")
+			tx.Rollback()
+			return
+		}
+
+		if transactionEvidence.ID > 0 {
+			// shippingのReserveIDしか使ってない。*でselectするな。
+			// transaction_evidenceとIDでleft outer join.
+			shipping := Shipping{}
+			err = tx.Get(&shipping, "SELECT * FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
+			if err == sql.ErrNoRows {
+				outputErrorMsg(w, http.StatusNotFound, "shipping not found")
+				tx.Rollback()
+				return
+			}
+			if err != nil {
+				log.Print(err)
+				outputErrorMsg(w, http.StatusInternalServerError, "db error")
+				tx.Rollback()
+				return
+			}
+			ssr, err := APIShipmentStatus(getShipmentServiceURL(), &APIShipmentStatusReq{
+				ReserveID: shipping.ReserveID,
+			})
+			if err != nil {
+				log.Print(err)
+				outputErrorMsg(w, http.StatusInternalServerError, "failed to request to shipment service")
+				tx.Rollback()
+				return
+			}
+
+			itemDetail.TransactionEvidenceID = transactionEvidence.ID
+			itemDetail.TransactionEvidenceStatus = transactionEvidence.Status
+			itemDetail.ShippingStatus = ssr.Status
+		}
+
+		itemDetails = append(itemDetails, itemDetail)
+	}
+	tx.Commit()
+
+	hasNext := false
+	if len(itemDetails) > TransactionsPerPage {
+		hasNext = true
+		itemDetails = itemDetails[0:TransactionsPerPage]
+	}
+
+	rts := resTransactions{
+		Items:   itemDetails,
+		HasNext: hasNext,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	json.NewEncoder(w).Encode(rts)
+
+}
+*/
 
 func postItemEdit(w http.ResponseWriter, r *http.Request) {
 	rie := reqItemEdit{}
