@@ -1034,7 +1034,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 					"ORDER BY `created_at` DESC, `id` DESC "+
 					"LIMIT ?",
 			*/
-			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
+			"SELECT i.id, i.seller_id, i.buyer_id, i.status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
 				"t.id AS transaction_id, t.status transaction_status "+
@@ -1078,7 +1078,7 @@ func getTransactions(w http.ResponseWriter, r *http.Request) {
 					"ORDER BY `created_at` DESC, `id` DESC  "+
 					"LIMIT ?",
 			*/
-			"SELECT i.id, seller_id, buyer_id, status, name, price, description, image_name, category_id, i.created_at, "+
+			"SELECT i.id, i.seller_id, i.buyer_id, i.status, name, price, description, image_name, category_id, i.created_at, "+
 				"seller.account_name AS seller_account_name, seller.num_sell_items AS seller_num_sell_items, "+
 				"buyer.account_name AS buyer_account_name, buyer.num_sell_items AS buyer_num_sell_items, "+
 				"t.id AS transaction_id, t.status transaction_status "+
